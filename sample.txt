@@ -1,4 +1,0 @@
-Hi, How are you
-this is the second line
-
-this is added in new-branch
