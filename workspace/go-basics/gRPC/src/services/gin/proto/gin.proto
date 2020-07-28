@@ -1,0 +1,25 @@
+syntax="proto3";
+
+package gin;
+
+option go_package="gin/proto";
+
+message Customer {
+  string Name=1;
+  int64  id=2;
+  int64 orders=3;
+}
+
+
+message CustomerRequest {
+  int64 cid =1 ;
+}
+
+message CustomerResponse {
+  Customer cust=1;
+}
+
+
+service CustomerService {
+  rpc GetDetails(CustomerRequest) returns (CustomerResponse){}
+}
