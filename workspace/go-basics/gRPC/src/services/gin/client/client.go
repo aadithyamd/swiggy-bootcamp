@@ -15,9 +15,17 @@ import (
 func main() {
 	r := gin.Default()
 
+	fmt.Println("On gRPC client")
+	conn, err := grpc.Dial("localhost:50051",grpc.WithInsecure())
+
+	if err != nil {
+		log.Fatalf("Cannot talk with gRPC server %v", err)
+	}
+	defer conn.Close()
+	con := &Custconn{conn: conn}
 	api := r.Group("/api")
 	api.GET("/",Homepage)
-	api.POST("/customer",PostCustomer)
+	api.POST("/customer",con.PostCustomer)
 
 	r.Run("localhost:5656")
 
@@ -30,18 +38,17 @@ func Homepage (c *gin.Context) {
 }
 
 
-func PostCustomer(c *gin.Context) {
+type Custconn struct {
+	conn *grpc.ClientConn
+}
+
+
+func (custconn *Custconn)PostCustomer(c *gin.Context) {
 
 	cid := c.Request.FormValue("cid")
 	fmt.Println(cid)
 
-	fmt.Println("On gRPC client")
-	conn, err := grpc.Dial("localhost:50051",grpc.WithInsecure())
-
-	if err != nil {
-		log.Fatalf("Cannot talk with gRPC server %v", err)
-	}
-	defer conn.Close()
+	conn := custconn.conn
 	c1 := proto.NewCustomerServiceClient(conn)
 	id, err := strconv.ParseInt(cid,10,64)
 	if err != nil {
